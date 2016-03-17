@@ -1,16 +1,14 @@
-﻿package cst.zju.com.main;
+package cst.zju.com.main;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-//import java.text.DecimalFormat;
-//import java.text.NumberFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,13 +23,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.CategoryDataset;
@@ -41,24 +32,25 @@ import cst.zju.com.util.LineChart;
 import cst.zju.com.util.NetworkFeathurIndex;
 import cst.zju.com.util.Node;
 
-public class mainMethod {
-	public static int limit=1000;
-	public static int coefficient=100000;
-	public static String url="data/dataForMicro1.txt";
-	public static Map<String, Integer> NodePairCount=new HashMap<String, Integer>();
-	public static Map<String, Node> nodesMap = new HashMap<String, Node>();
+public class mainMethod2 {
+	public static int limit = 1;
+	public static int coefficient = 1000;
+	public static String url = "data/dataForMicro2.txt";
+	public static Map<String, Integer> NodePairCount = new HashMap<String, Integer>();
+
 	public static void main(String[] args) throws IOException {
-		Map<String, ArrayList<NetworkFeathurIndex>>networkFeathurIndexsMap= networkIndex();
-		storeAsExcel(networkFeathurIndexsMap);
-		int length = networkFeathurIndexsMap.get("initialDegree").size(), cols = 0;;
+
+		Map<String, ArrayList<NetworkFeathurIndex>> networkFeathurIndexsMap = networkIndex();
+		int length = networkFeathurIndexsMap.get("initialDegree").size(), cols = 0;
+		;
 		double[][] data0 = new double[4][length];
 		double[][] data1 = new double[4][length];
 		double[][] data2 = new double[4][length];
 		Iterator<Map.Entry<String, ArrayList<NetworkFeathurIndex>>> iterator = networkFeathurIndexsMap.entrySet()
 				.iterator();
 		while (iterator.hasNext()) {
-			Entry<String, ArrayList<NetworkFeathurIndex>>  networkFeathur= iterator.next();
-			String keyString=networkFeathur.getKey();
+			Entry<String, ArrayList<NetworkFeathurIndex>> networkFeathur = iterator.next();
+			String keyString = networkFeathur.getKey();
 			ArrayList<NetworkFeathurIndex> networkFeathurIndex = networkFeathur.getValue();
 			if (keyString.equals("initialDegree")) {
 				cols = 0;
@@ -75,15 +67,15 @@ public class mainMethod {
 				NetworkFeathurIndex index = networkFeathurIndexIterator.next();
 				data0[cols][Ycols] = index.getAveragePathLength();
 				data1[cols][Ycols] = index.getAverageClusteringCoefficient();
-				data2[cols][Ycols] = index.getNetworkCapacity();
-				Ycols++;
+				data2[cols][Ycols++] = index.getNetworkCapacity();
 			}
 		}
 		String[] rowKeys = { "initialDegree", "initialBetweenness", "recalculatedDegree", "recalculatedBetweenness" };
 		String[] colKeys = new String[length];
-		for (int i = 0; i< length; i++) {
-			String str=""+i;
-			colKeys[i] = str;
+		for (int i = 1; i <= length; i++) {
+
+			String str = "" + i;
+			colKeys[i - 1] = str;
 		}
 		CategoryDataset categoryDataset0 = LineChart.createDataset(rowKeys, colKeys, data0);
 		CategoryDataset categoryDataset1 = LineChart.createDataset(rowKeys, colKeys, data1);
@@ -91,8 +83,8 @@ public class mainMethod {
 
 		JFreeChart chartline0 = LineChart.createLineChart("模拟网络客户流失网络参数", "删除节点所占个数（X1000）", "AveragePathLength",
 				categoryDataset0);
-		JFreeChart chartline1 = LineChart.createLineChart("模拟网络客户流失网络参数", "删除节点所占个数（X1000）", "AverageClusteringCoefficient",
-				categoryDataset1);
+		JFreeChart chartline1 = LineChart.createLineChart("模拟网络客户流失网络参数", "删除节点所占个数（X1000）",
+				"AverageClusteringCoefficient", categoryDataset1);
 		JFreeChart chartline2 = LineChart.createLineChart("模拟网络客户流失网络参数", "删除节点所占个数（X1000）", "NetworkCapacity",
 				categoryDataset2);
 		ChartFrame frame0 = new ChartFrame("折线图 ", chartline0, true);
@@ -105,139 +97,34 @@ public class mainMethod {
 		frame2.pack();
 		frame2.setVisible(true);
 	}
-	
-	
-	public static void  storeAsExcel(Map<String, ArrayList<NetworkFeathurIndex>> networkFeathurIndexsMap){
-		SXSSFWorkbook workbook = new SXSSFWorkbook(90);
-		Sheet sheet1 = workbook.createSheet("AverageLength");
-		Sheet sheet2= workbook.createSheet("NetworkCapacity");
-		Sheet sheet3 = workbook.createSheet("AverageClusteringCoefficent");
-		int row=0;
-		Row row1 =sheet1.createRow(row);
-		Cell cell10 =row1.createCell(0);
-		Cell cell11 =row1.createCell(1);
-		Cell cell12 =row1.createCell(2);
-		Cell cell13 =row1.createCell(3);
-		cell10.setCellValue("ID");
-		cell11.setCellValue("IB");
-		cell12.setCellValue("RD");
-		cell13.setCellValue("RB");
 
-
-		Row row2 =sheet2.createRow(row);
-		Cell cell20 =row2.createCell(0);
-		Cell cell21 =row2.createCell(1);
-		Cell cell22 =row2.createCell(2);
-		Cell cell23 =row2.createCell(3);
-		cell20.setCellValue("ID");
-		cell21.setCellValue("IB");
-		cell22.setCellValue("RD");
-		cell23.setCellValue("RB");
-
-
-		Row row3 =sheet3.createRow(row++);
-		Cell cell30 =row3.createCell(0);
-		Cell cell31 =row3.createCell(1);
-		Cell cell32 =row3.createCell(2);
-		Cell cell33 =row3.createCell(3);
-		cell30.setCellValue("ID");
-		cell31.setCellValue("IB");
-		cell32.setCellValue("RD");
-		cell33.setCellValue("RB");
-			ArrayList<NetworkFeathurIndex> initialDegreeIndex = networkFeathurIndexsMap.get("initialDegree");
-			ArrayList<NetworkFeathurIndex> initialBetweennessIndex = networkFeathurIndexsMap.get("initialBetweenness");
-			ArrayList<NetworkFeathurIndex> recalculatedDegreeIndex = networkFeathurIndexsMap.get("recalculatedDegree");
-			ArrayList<NetworkFeathurIndex> recalculatedBetweennessIndex = networkFeathurIndexsMap.get("recalculatedBetweenness");
-			Iterator<NetworkFeathurIndex> IDIterator = initialDegreeIndex.iterator();
-			Iterator<NetworkFeathurIndex> IBIterator = initialBetweennessIndex.iterator();
-			Iterator<NetworkFeathurIndex> RDIterator = recalculatedDegreeIndex.iterator();
-			Iterator<NetworkFeathurIndex> RBIterator = recalculatedBetweennessIndex.iterator();
-			while (IDIterator.hasNext()&&IBIterator.hasNext()&&RDIterator.hasNext()&&RBIterator.hasNext()) {
-				NetworkFeathurIndex IDindex = IDIterator.next();
-				NetworkFeathurIndex IBindex = IBIterator.next();
-				NetworkFeathurIndex RDindex = RDIterator.next();
-				NetworkFeathurIndex RBindex = RBIterator.next();
-				row1=sheet1.createRow(row);
-				row2=sheet2.createRow(row);
-				row3=sheet3.createRow(row++);
-				Cell cl10=row1.createCell(0);cl10.setCellValue(IDindex.getAveragePathLength());
-				Cell cl11=row1.createCell(1);cl11.setCellValue(IBindex.getAveragePathLength());
-				Cell cl12=row1.createCell(2);cl12.setCellValue(RDindex.getAveragePathLength());
-				Cell cl13=row1.createCell(3);cl13.setCellValue(RBindex.getAveragePathLength());
-				
-				Cell cl20=row2.createCell(0);cl20.setCellValue(IDindex.getNetworkCapacity());
-				Cell cl21=row2.createCell(1);cl21.setCellValue(IBindex.getNetworkCapacity());
-				Cell cl22=row2.createCell(2);cl22.setCellValue(RDindex.getNetworkCapacity());
-				Cell cl23=row2.createCell(3);cl23.setCellValue(RBindex.getNetworkCapacity());
-				
-				Cell cl30=row3.createCell(0);cl30.setCellValue(IDindex.getAverageClusteringCoefficient());
-				Cell cl31=row3.createCell(1);cl31.setCellValue(IBindex.getAverageClusteringCoefficient());
-				Cell cl32=row3.createCell(2);cl32.setCellValue(RDindex.getAverageClusteringCoefficient());
-				Cell cl33=row3.createCell(3);cl33.setCellValue(RBindex.getAverageClusteringCoefficient());
-			}
-			try {
-				String url="E:/USERS/JAVA/git/workSpace.xlsx";
-				
-				File file=new File(url);
-				while(file.exists()){
-					file.delete();
-				}
-				FileOutputStream os1=new FileOutputStream(url);
-				
-				
-				workbook.write(os1);
-				workbook.dispose();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	
-	public static Map<String, ArrayList<NetworkFeathurIndex>> networkIndex() throws UnsupportedEncodingException, FileNotFoundException, IOException{
+	public static Map<String, ArrayList<NetworkFeathurIndex>> networkIndex()
+			throws UnsupportedEncodingException, FileNotFoundException, IOException {
+		Map<String, Node> nodesMap = ReadDataFromFile(url);
+		ArrayList<Entry<String, Node>> sortedDegreeCentrality = degreeCentrality(nodesMap);
 		Map<String, ArrayList<NetworkFeathurIndex>> networkFeathurIndexsMap = new HashMap<String, ArrayList<NetworkFeathurIndex>>();
-		
-		ID(networkFeathurIndexsMap);
-		
-		IB(networkFeathurIndexsMap);
-		
-		RD(networkFeathurIndexsMap);
 
-		RB(networkFeathurIndexsMap);
-		
-		
-		
+		ArrayList<NetworkFeathurIndex> networkFeathurIndexs1 = initialDegree(sortedDegreeCentrality, nodesMap);
+		networkFeathurIndexsMap.put("initialDegree", networkFeathurIndexs1);
+
+		nodesMap = ReadDataFromFile(url);
+		ArrayList<Entry<String, Integer>> sortedBetweenessCentrality = betweennessCentrality(nodesMap);
+		ArrayList<NetworkFeathurIndex> networkFeathurIndexs2 = initialBetweenness(sortedBetweenessCentrality, nodesMap);
+		networkFeathurIndexsMap.put("initialBetweenness", networkFeathurIndexs2);
+
+		nodesMap = ReadDataFromFile(url);
+		sortedDegreeCentrality = degreeCentrality(nodesMap);
+		ArrayList<NetworkFeathurIndex> networkFeathurIndexs3 = recalculatedDegree(sortedDegreeCentrality, nodesMap);
+		networkFeathurIndexsMap.put("recalculatedDegree", networkFeathurIndexs3);
+
+		nodesMap = ReadDataFromFile(url);
+		sortedBetweenessCentrality = betweennessCentrality(nodesMap);
+		ArrayList<NetworkFeathurIndex> networkFeathurIndexs4 = recalculatedBetweenness(sortedBetweenessCentrality,
+				nodesMap);
+		networkFeathurIndexsMap.put("recalculatedBetweenness", networkFeathurIndexs4);
 		return networkFeathurIndexsMap;
 	}
-	private static void RB(Map<String, ArrayList<NetworkFeathurIndex>> networkFeathurIndexsMap)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException {
-		 Map<String, Node> nodesMap =ReadDataFromFile(url);
-		ArrayList<Entry<String, Integer>> sortedBetweenessCentrality = betweennessCentrality(nodesMap);
-		ArrayList<NetworkFeathurIndex> networkFeathurIndexs4 = recalculatedBetweenness(sortedBetweenessCentrality,
-				nodesMap,NodePairCount);
-		networkFeathurIndexsMap.put("recalculatedBetweenness", networkFeathurIndexs4);
-	}
-	private static void RD(Map<String, ArrayList<NetworkFeathurIndex>> networkFeathurIndexsMap)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException {
-	
-		 Map<String, Node> nodesMap =ReadDataFromFile(url);
-		ArrayList<Entry<String, Node>> sortedDegreeCentrality = degreeCentrality(nodesMap);
-		ArrayList<NetworkFeathurIndex> networkFeathurIndexs3 = recalculatedDegree(sortedDegreeCentrality, nodesMap,NodePairCount);
-		networkFeathurIndexsMap.put("recalculatedDegree", networkFeathurIndexs3);
-	}
-	private static void IB(Map<String, ArrayList<NetworkFeathurIndex>> networkFeathurIndexsMap)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException {
-		 Map<String, Node> nodesMap =ReadDataFromFile(url);
-		ArrayList<Entry<String, Integer>> sortedBetweenessCentrality = betweennessCentrality(nodesMap);
-		ArrayList<NetworkFeathurIndex> networkFeathurIndexs2 = initialBetweenness(sortedBetweenessCentrality,
-				nodesMap,NodePairCount);
-		networkFeathurIndexsMap.put("initialBetweenness", networkFeathurIndexs2);
-	}
-	private static void ID(Map<String, ArrayList<NetworkFeathurIndex>> networkFeathurIndexsMap)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException {
-		 Map<String, Node> nodesMap =ReadDataFromFile(url);
-		ArrayList<Entry<String, Node>> sortedDegreeCentrality = degreeCentrality(nodesMap);
-		ArrayList<NetworkFeathurIndex> networkFeathurIndexs1 = initialDegree(sortedDegreeCentrality, nodesMap,NodePairCount);
-		networkFeathurIndexsMap.put("initialDegree", networkFeathurIndexs1);
-	}
+
 	private static Map<String, Node> ReadDataFromFile(String url)
 			throws UnsupportedEncodingException, FileNotFoundException, IOException {
 		File file = new File(url);
@@ -270,14 +157,15 @@ public class mainMethod {
 					if (!nodeTo.getDegree().getNode().contains(nodeFrom)) {
 						nodeTo.linkNode(nodeFrom);
 					}
-					String nodePairString="";
-					nodePairString= stringFrom.compareToIgnoreCase(stringTo)>0?(stringFrom+'_'+stringTo):(stringTo+'_'+stringFrom);
-					if(NodePairCount.containsKey(nodePairString)){
-						int NPcount =NodePairCount.get(nodePairString);
+					String nodePairString = "";
+					nodePairString = stringFrom.compareToIgnoreCase(stringTo) > 0 ? (stringFrom + '_' + stringTo)
+							: (stringTo + '_' + stringFrom);
+					if (NodePairCount.containsKey(nodePairString)) {
+						int NPcount = NodePairCount.get(nodePairString);
 						NPcount++;
 						NodePairCount.put(nodePairString, NPcount);
-					}else{
-						NodePairCount.put(nodePairString, 1);
+					} else {
+						NodePairCount.put(nodePairString, 0);
 					}
 				}
 			}
@@ -288,6 +176,7 @@ public class mainMethod {
 		}
 		return nodesMap;
 	}
+
 	public static Map<String, Distance> hierarchyTravel(Map<String, Node> nodesMap) {
 		Map<String, Distance> minDistanceSet = new HashMap<String, Distance>();
 		HashSet<String> visitedNodeSet = new HashSet<String>();
@@ -417,17 +306,15 @@ public class mainMethod {
 		return sortedBetweenness;
 	}
 
-	public static double averagePathLength(int nodeCount,Map<String, Node> nodesMap) {
-		 Map<String, Distance> minDistanceSet=hierarchyTravel(nodesMap);
+	public static double averagePathLength(int nodeCount, Map<String, Distance> minDistanceSet) {
 		Iterator<Distance> iterator = minDistanceSet.values().iterator();
 		int sum = 0;
 		while (iterator.hasNext()) {
 			Distance distanceSet = iterator.next();
 			sum += distanceSet.getDistanceLong();
 		}
-		double nc=nodeCount;
-		double dividend = (double)coefficient/(nc*(nc-1));
-		return (double)sum * dividend;
+		double dividend = (nodeCount * (nodeCount - 1));
+		return sum * coefficient / dividend;
 	}
 
 	public static double averageClusteringCoefficient(Map<String, Node> mapNodes) {
@@ -465,29 +352,32 @@ public class mainMethod {
 				MapClusteringCoefficient.put(node.getName(), 0.0);
 			}
 		}
-		return averageClusteringCoeffient *coefficient/ mapNodes.size();
+		return averageClusteringCoeffient * coefficient / mapNodes.size();
 	}
 
 	public static int networkCapacity(Map<String, Integer> NodePairCount) {
-		Iterator<Map.Entry<String, Integer>> iterator=NodePairCount.entrySet().iterator();
+		Iterator<Map.Entry<String, Integer>> iterator = NodePairCount.entrySet().iterator();
 		int nodeCount = 0;
-		while(iterator.hasNext()){
-			int _nodeCount=iterator.next().getValue();
-			nodeCount+=_nodeCount;
+		while (iterator.hasNext()) {
+			int _nodeCount = iterator.next().getValue();
+			nodeCount += _nodeCount;
 		}
 		return nodeCount;
 	}
 
 	public static ArrayList<NetworkFeathurIndex> initialDegree(ArrayList<Entry<String, Node>> sortedDegreeCentrality,
-			Map<String, Node> nodesMapID ,Map<String, Integer> NodePairCount1) {
+			Map<String, Node> nodesMap) {
 		HashSet<String> deletedNodeNameByID = new HashSet<String>();
+		Map<String, Distance> minDistanceSet = new HashMap<String, Distance>();
 		ArrayList<NetworkFeathurIndex> networkIndexArray = new ArrayList<NetworkFeathurIndex>();
+		int i = 0;
 		do {
 			int j = 0;
 			NetworkFeathurIndex networkFeathurIndex = new NetworkFeathurIndex();
-			networkFeathurIndex.setAveragePathLength(averagePathLength(nodesMapID.size(), nodesMapID));
-			networkFeathurIndex.setAverageClusteringCoefficient(averageClusteringCoefficient(nodesMapID));
-			networkFeathurIndex.setNetworkCapacity(networkCapacity(NodePairCount1));
+			minDistanceSet = hierarchyTravel(nodesMap);
+			networkFeathurIndex.setAveragePathLength(averagePathLength(nodesMap.size(), minDistanceSet));
+			networkFeathurIndex.setAverageClusteringCoefficient(averageClusteringCoefficient(nodesMap));
+			networkFeathurIndex.setNetworkCapacity(networkCapacity(NodePairCount));
 			networkIndexArray.add(networkFeathurIndex);
 			Iterator<Map.Entry<String, Node>> iteratorSortedDegree = sortedDegreeCentrality.iterator();
 			while (iteratorSortedDegree.hasNext() && (j++) < limit) {
@@ -495,22 +385,25 @@ public class mainMethod {
 				deletedNodeNameByID.add(deletedNode.getKey());
 				iteratorSortedDegree.remove();
 			}
-			nodesMapID = rebuidRelationBetweenNode(deletedNodeNameByID, nodesMapID,NodePairCount1);
-		} while (nodesMapID.size() > limit);
+			nodesMap = rebuidRelationBetweenNode(deletedNodeNameByID, nodesMap);
+		} while (nodesMap.size() > limit);
 		return networkIndexArray;
 	}
 
 	public static ArrayList<NetworkFeathurIndex> recalculatedDegree(
-			ArrayList<Entry<String, Node>> sortedDegreeCentrality, Map<String, Node> nodesMapRD,Map<String, Integer> NodePairCount2) {
+			ArrayList<Entry<String, Node>> sortedDegreeCentrality, Map<String, Node> nodesMap) {
 		HashSet<String> deletedNodeNameByID = new HashSet<String>();
+		Map<String, Distance> minDistanceSet = new HashMap<String, Distance>();
 		ArrayList<NetworkFeathurIndex> networkIndexArray = new ArrayList<NetworkFeathurIndex>();
+		int i = 0;
 		do {
 			int j = 0;
-			sortedDegreeCentrality = degreeCentrality(nodesMapRD);
+			minDistanceSet = hierarchyTravel(nodesMap);
+			sortedDegreeCentrality = degreeCentrality(nodesMap);
 			NetworkFeathurIndex networkFeathurIndex = new NetworkFeathurIndex();
-			networkFeathurIndex.setAveragePathLength(averagePathLength(nodesMapRD.size(), nodesMapRD));
-			networkFeathurIndex.setAverageClusteringCoefficient(averageClusteringCoefficient(nodesMapRD));
-			networkFeathurIndex.setNetworkCapacity(networkCapacity(NodePairCount2));
+			networkFeathurIndex.setAveragePathLength(averagePathLength(nodesMap.size(), minDistanceSet));
+			networkFeathurIndex.setAverageClusteringCoefficient(averageClusteringCoefficient(nodesMap));
+			networkFeathurIndex.setNetworkCapacity(networkCapacity(NodePairCount));
 			networkIndexArray.add(networkFeathurIndex);
 			Iterator<Map.Entry<String, Node>> iteratorSortedDegree = sortedDegreeCentrality.iterator();
 			while (iteratorSortedDegree.hasNext() && (j++ < limit)) {
@@ -518,22 +411,24 @@ public class mainMethod {
 				deletedNodeNameByID.add(deletedNode.getKey());
 				iteratorSortedDegree.remove();
 			}
-			nodesMapRD = rebuidRelationBetweenNode(deletedNodeNameByID, nodesMapRD,NodePairCount2);
-		} while (nodesMapRD.size() > limit);
+			nodesMap = rebuidRelationBetweenNode(deletedNodeNameByID, nodesMap);
+		} while (nodesMap.size() > limit);
 		return networkIndexArray;
 	}
 
-	
 	public static ArrayList<NetworkFeathurIndex> initialBetweenness(
-			ArrayList<Map.Entry<String, Integer>> sortedBetweenness, Map<String, Node> nodesMapIB,Map<String, Integer> NodePairCount3) {
+			ArrayList<Map.Entry<String, Integer>> sortedBetweenness, Map<String, Node> nodesMap) {
 		HashSet<String> deletedNodeNameByIB = new HashSet<String>();
+		Map<String, Distance> minDistanceSet = new HashMap<String, Distance>();
 		ArrayList<NetworkFeathurIndex> networkIndexArray = new ArrayList<NetworkFeathurIndex>();
+		int i = 0;
 		do {
 			int j = 0;
 			NetworkFeathurIndex networkFeathurIndex = new NetworkFeathurIndex();
-			networkFeathurIndex.setAveragePathLength(averagePathLength(nodesMapIB.size(), nodesMapIB));
-			networkFeathurIndex.setAverageClusteringCoefficient(averageClusteringCoefficient(nodesMapIB));
-			networkFeathurIndex.setNetworkCapacity(networkCapacity(NodePairCount3));
+			minDistanceSet = hierarchyTravel(nodesMap);
+			networkFeathurIndex.setAveragePathLength(averagePathLength(nodesMap.size(), minDistanceSet));
+			networkFeathurIndex.setAverageClusteringCoefficient(averageClusteringCoefficient(nodesMap));
+			networkFeathurIndex.setNetworkCapacity(networkCapacity(NodePairCount));
 			networkIndexArray.add(networkFeathurIndex);
 			Iterator<Map.Entry<String, Integer>> iteratorSortedBetweenness = sortedBetweenness.iterator();
 			while (iteratorSortedBetweenness.hasNext() && (j++) < limit) {
@@ -541,22 +436,25 @@ public class mainMethod {
 				deletedNodeNameByIB.add(deletedNode.getKey());
 				iteratorSortedBetweenness.remove();
 			}
-			nodesMapIB = rebuidRelationBetweenNode(deletedNodeNameByIB, nodesMapIB,NodePairCount3);
-		} while (nodesMapIB.size() > limit);
+			nodesMap = rebuidRelationBetweenNode(deletedNodeNameByIB, nodesMap);
+		} while (nodesMap.size() > limit);
 		return networkIndexArray;
 	}
 
 	public static ArrayList<NetworkFeathurIndex> recalculatedBetweenness(
-			ArrayList<Map.Entry<String, Integer>> sortedBetweenness, Map<String, Node> nodesMapRB,Map<String, Integer> NodePairCount4) {
+			ArrayList<Map.Entry<String, Integer>> sortedBetweenness, Map<String, Node> nodesMap) {
 		HashSet<String> deletedNodeNameByIB = new HashSet<String>();
+		Map<String, Distance> minDistanceSet = new HashMap<String, Distance>();
 		ArrayList<NetworkFeathurIndex> networkIndexArray = new ArrayList<NetworkFeathurIndex>();
+		int i = 0;
 		do {
 			int j = 0;
-			sortedBetweenness = betweennessCentrality(nodesMapRB);
+			minDistanceSet = hierarchyTravel(nodesMap);
+			sortedBetweenness = betweennessCentrality(nodesMap);
 			NetworkFeathurIndex networkFeathurIndex = new NetworkFeathurIndex();
-			networkFeathurIndex.setAveragePathLength(averagePathLength(nodesMapRB.size(), nodesMapRB));
-			networkFeathurIndex.setAverageClusteringCoefficient(averageClusteringCoefficient(nodesMapRB));
-			networkFeathurIndex.setNetworkCapacity(networkCapacity(NodePairCount4));
+			networkFeathurIndex.setAveragePathLength(averagePathLength(nodesMap.size(), minDistanceSet));
+			networkFeathurIndex.setAverageClusteringCoefficient(averageClusteringCoefficient(nodesMap));
+			networkFeathurIndex.setNetworkCapacity(networkCapacity(NodePairCount));
 			networkIndexArray.add(networkFeathurIndex);
 			Iterator<Map.Entry<String, Integer>> iteratorSortedBetweenness = sortedBetweenness.iterator();
 			while (iteratorSortedBetweenness.hasNext() && (j++) < limit) {
@@ -564,13 +462,13 @@ public class mainMethod {
 				deletedNodeNameByIB.add(deletedNode.getKey());
 				iteratorSortedBetweenness.remove();
 			}
-			nodesMapRB = rebuidRelationBetweenNode(deletedNodeNameByIB, nodesMapRB,NodePairCount4);
-		} while (nodesMapRB.size() > limit);
+			nodesMap = rebuidRelationBetweenNode(deletedNodeNameByIB, nodesMap);
+		} while (nodesMap.size() > limit);
 		return networkIndexArray;
 	}
 
-	public static Map<String, Node> rebuidRelationBetweenNode(HashSet<String> deletedNode, Map<String, Node> nodesMapRRB,Map<String, Integer> nodePairCountT) {
-		Iterator<Map.Entry<String, Node>> iteratorNodeMap = nodesMapRRB.entrySet().iterator();
+	public static Map<String, Node> rebuidRelationBetweenNode(HashSet<String> deletedNode, Map<String, Node> nodesMap) {
+		Iterator<Map.Entry<String, Node>> iteratorNodeMap = nodesMap.entrySet().iterator();
 		while (iteratorNodeMap.hasNext()) {
 			Map.Entry<String, Node> nodeMap = iteratorNodeMap.next();
 			Node node = nodeMap.getValue();
@@ -580,29 +478,31 @@ public class mainMethod {
 				while (nodeIterator.hasNext()) {
 					Node nodeInList = nodeIterator.next();
 					if (deletedNode.contains(nodeInList.getName())) {
-						String f1String =node.getName();
-						String f2String=nodeInList.getName();
-						String keyString= f1String.compareToIgnoreCase(f2String)>0?f1String+"_"+f2String:f2String+"_"+f1String;
-						if(nodePairCountT.containsKey(keyString)){
-							nodePairCountT.remove(keyString);
+						String f1String = node.getName();
+						String f2String = nodeInList.getName();
+						String keyString = f1String.compareToIgnoreCase(f2String) > 0 ? f1String + "_" + f2String
+								: f2String + "_" + f1String;
+						if (NodePairCount.containsKey(keyString)) {
+							NodePairCount.remove(keyString);
 						}
 						nodeIterator.remove();
 						node.getDegree().removeNode(nodeInList);
 					}
 				}
 			} else {
-				String f1String =node.getName();
+				String f1String = node.getName();
 				while (nodeIterator.hasNext()) {
 					Node nodeInList = nodeIterator.next();
-					String f2String=nodeInList.getName();
-					String keyString= f1String.compareToIgnoreCase(f2String)>0?f1String+"_"+f2String:f2String+"_"+f1String;
-					if(nodePairCountT.containsKey(keyString)){
-						nodePairCountT.remove(keyString);
+					String f2String = nodeInList.getName();
+					String keyString = f1String.compareToIgnoreCase(f2String) > 0 ? f1String + "_" + f2String
+							: f2String + "_" + f1String;
+					if (NodePairCount.containsKey(keyString)) {
+						NodePairCount.remove(keyString);
 					}
 				}
 				iteratorNodeMap.remove();
 			}
 		}
-		return nodesMapRRB;
+		return nodesMap;
 	}
 }
