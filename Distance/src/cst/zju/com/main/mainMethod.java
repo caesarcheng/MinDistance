@@ -1,5 +1,6 @@
 ﻿package cst.zju.com.main;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 //import java.text.DecimalFormat;
 //import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -25,15 +25,17 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.CategoryDataset;
 
 import cst.zju.com.util.Distance;
@@ -49,7 +51,7 @@ public class mainMethod {
 	public static Map<String, Node> nodesMap = new HashMap<String, Node>();
 	public static void main(String[] args) throws IOException {
 		Map<String, ArrayList<NetworkFeathurIndex>>networkFeathurIndexsMap= networkIndex();
-		storeAsExcel(networkFeathurIndexsMap);
+		//storeAsExcel(networkFeathurIndexsMap);
 		int length = networkFeathurIndexsMap.get("initialDegree").size(), cols = 0;;
 		double[][] data0 = new double[4][length];
 		double[][] data1 = new double[4][length];
@@ -88,22 +90,32 @@ public class mainMethod {
 		CategoryDataset categoryDataset0 = LineChart.createDataset(rowKeys, colKeys, data0);
 		CategoryDataset categoryDataset1 = LineChart.createDataset(rowKeys, colKeys, data1);
 		CategoryDataset categoryDataset2 = LineChart.createDataset(rowKeys, colKeys, data2);
+		
 
-		JFreeChart chartline0 = LineChart.createLineChart("模拟网络客户流失网络参数", "删除节点所占个数（X1000）", "AveragePathLength",
-				categoryDataset0);
-		JFreeChart chartline1 = LineChart.createLineChart("模拟网络客户流失网络参数", "删除节点所占个数（X1000）", "AverageClusteringCoefficient",
-				categoryDataset1);
-		JFreeChart chartline2 = LineChart.createLineChart("模拟网络客户流失网络参数", "删除节点所占个数（X1000）", "NetworkCapacity",
-				categoryDataset2);
-		ChartFrame frame0 = new ChartFrame("折线图 ", chartline0, true);
-		ChartFrame frame1 = new ChartFrame("折线图 ", chartline1, true);
-		ChartFrame frame2 = new ChartFrame("折线图 ", chartline2, true);
-		frame0.pack();
-		frame0.setVisible(true);
-		frame1.pack();
-		frame1.setVisible(true);
-		frame2.pack();
-		frame2.setVisible(true);
+		drawChart(categoryDataset0,"Customer Loss Network Analog","Deleted Nodes Number(X1000)","AveragePathLength");
+		drawChart(categoryDataset1,"Customer Loss Network Analog","Deleted Nodes Number(X1000)","AverageClusteringCoefficient");
+		drawChart(categoryDataset2,"Customer Loss Network Analog","Deleted Nodes Number(X1000)","NetworkCapacity");
+	}
+
+
+	private static void drawChart(CategoryDataset categoryDataset0,String xname,String yname,String title) {
+		JFreeChart chartline = ChartFactory.createLineChart(xname, yname, title,categoryDataset0,PlotOrientation.VERTICAL,true,true,true);
+		CategoryPlot xyplot=chartline.getCategoryPlot();
+		CategoryItemRenderer xyLineAndShapeRenderer=xyplot.getRenderer();
+		xyLineAndShapeRenderer.setSeriesOutlinePaint(0, Color.BLACK);
+		xyLineAndShapeRenderer.setSeriesPaint(0,  Color.BLACK);
+		xyLineAndShapeRenderer.setSeriesOutlinePaint(1, Color.BLACK);
+		xyLineAndShapeRenderer.setSeriesPaint(1,  Color.BLACK);
+		xyLineAndShapeRenderer.setSeriesOutlinePaint(2, Color.BLACK);
+		xyLineAndShapeRenderer.setSeriesPaint(2,  Color.BLACK);
+		xyLineAndShapeRenderer.setSeriesOutlinePaint(3, Color.BLACK);
+		xyLineAndShapeRenderer.setSeriesPaint(3,  Color.BLACK);
+		LineAndShapeRenderer ls=(LineAndShapeRenderer) xyplot.getRenderer();
+		ls.setBaseShapesVisible(true);
+		ls.setBaseShapesFilled(false);
+		ChartFrame frame = new ChartFrame("linechart ", chartline, true);
+		frame.pack();
+		frame.setVisible(true);
 	}
 	
 	
@@ -176,7 +188,7 @@ public class mainMethod {
 				Cell cl33=row3.createCell(3);cl33.setCellValue(RBindex.getAverageClusteringCoefficient());
 			}
 			try {
-				String url="E:/USERS/JAVA/git/workSpace.xlsx";
+				String url="E:/USERS/workSpace.xlsx";
 				
 				File file=new File(url);
 				while(file.exists()){
